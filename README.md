@@ -26,5 +26,24 @@ Use two browser windows, or one normal window and one private window, to test tw
 Upload `index.html` to any static host (Vercel, Netlify, GitHub Pages, etc.).
 No build step is required.
 
+## Production release
+
+Deploy the backend first from the `familyuno-backend` repository:
+
+```powershell
+supabase link --project-ref lakkufojduscksomenbp
+supabase functions deploy uno-api-v2
+```
+
+Then publish this repository to GitHub Pages:
+
+```powershell
+git add index.html README.md
+git commit -m "Prepare production release"
+git push origin main
+```
+
+The frontend is already configured for `https://lakkufojduscksomenbp.supabase.co/functions/v1/uno-api-v2`. The `?api=` URL parameter is only for local or development testing.
+
 ## Important
 The backend keeps hands in a private table and exposes only the current player's hand.
