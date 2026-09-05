@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="it">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Family UNO</title>
+<title>UNO in famiglia</title>
 <style>
 :root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#fff;background:#111827}
 *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% 0,#273449,#0b1020 60%);overflow-x:hidden}
@@ -22,81 +22,109 @@ button{border:0;border-radius:14px;padding:12px 16px;background:#fff;color:#1118
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">🃏 Family UNO</div><div id="statusBadge" class="badge">Private</div></div>
+  <div class="top"><div class="brand">🃏 UNO in famiglia</div><div><button id="languageBtn" class="secondary" type="button">English</button><span id="statusBadge" class="badge">Stanza privata</span></div></div>
   <section id="lobby" class="panel lobby">
-    <div class="hero"><h1>UNO, together.</h1><p>Private rooms for family & friends · 2–4 players</p></div>
-    <div class="tabs"><button id="newTab" class="primary">Create game</button><button id="joinTab" class="secondary">Join game</button></div>
+    <div class="hero"><h1 id="heroTitle">Giochiamo insieme.</h1><p id="heroSubtitle">Una partita privata per la famiglia · da 2 a 4 giocatori</p></div>
+    <div class="tabs"><button id="newTab" class="primary">Crea partita</button><button id="joinTab" class="secondary">Entra in partita</button></div>
     <div id="createBox">
-      <div class="field"><label>Your name</label><input id="createName" maxlength="30" placeholder="Marco"></div>
-      <div class="field"><label>Players</label><select id="maxPlayers"><option value="2">2 players</option><option value="3">3 players</option><option value="4" selected>4 players</option></select></div>
-      <button class="primary" style="width:100%" id="createBtn">Create private room</button>
+      <div class="field"><label id="createNameLabel">Il tuo nome</label><input id="createName" maxlength="30" placeholder="Marco"></div>
+      <div class="field"><label id="playersLabel">Giocatori</label><select id="maxPlayers"><option value="2" selected>2 giocatori</option><option value="3">3 giocatori</option><option value="4">4 giocatori</option></select></div>
+      <button class="primary" style="width:100%" id="createBtn">Crea stanza privata</button>
     </div>
     <div id="joinBox" style="display:none">
-      <div class="field"><label>Your name</label><input id="joinName" maxlength="30" placeholder="Mamma"></div>
-      <div class="field"><label>Room code</label><input id="roomCode" maxlength="6" placeholder="ABC123" style="text-transform:uppercase;letter-spacing:5px;font-weight:900"></div>
-      <button class="primary" style="width:100%" id="joinBtn">Join room</button>
+      <div class="field"><label id="joinNameLabel">Il tuo nome</label><input id="joinName" maxlength="30" placeholder="Mamma"></div>
+      <div class="field"><label id="roomCodeLabel">Codice stanza</label><input id="roomCode" maxlength="6" placeholder="ABC123" style="text-transform:uppercase;letter-spacing:5px;font-weight:900"></div>
+      <button class="primary" style="width:100%" id="joinBtn">Entra nella stanza</button>
     </div>
     <div id="err" class="error" style="display:none"></div>
-    <p class="hint">Your cards stay private. The backend validates moves; other players only see card counts.</p>
+    <p id="lobbyHint" class="hint">Le tue carte restano private. Condividi il codice della stanza con la mamma e iniziate a giocare.</p>
   </section>
 
   <section id="game" class="game">
     <div class="panel" style="margin-bottom:14px">
-      <div class="room"><div><div class="mini">ROOM</div><div id="roomCodeDisplay" class="roomcode">------</div></div><button class="secondary" id="copyBtn">Copy invite</button></div>
+      <div class="room"><div><div id="roomLabel" class="mini">STANZA</div><div id="roomCodeDisplay" class="roomcode">------</div></div><button class="secondary" id="copyBtn">Copia invito</button></div>
       <div id="players" class="players"></div>
-      <div id="waiting" style="margin-top:14px;display:none"><div class="hint">Waiting for players…</div><button id="startBtn" class="primary" style="margin-top:10px">Start game</button></div>
+      <div id="waiting" style="margin-top:14px;display:none"><div id="waitingHint" class="hint">In attesa dell'altro giocatore…</div><button id="startBtn" class="primary" style="margin-top:10px">Inizia partita</button></div>
     </div>
     <div class="panel table">
       <div id="opponents" class="opponents"></div>
       <div class="center">
-        <div class="pile"><div class="pile-label">DRAW</div><div class="card back"><span>UNO</span></div></div>
-        <div class="pile"><div class="pile-label">DISCARD</div><div id="topCard" class="card blue"><span>?</span></div></div>
+        <div class="pile"><div id="drawLabel" class="pile-label">PESCA</div><div class="card back"><span>UNO</span></div></div>
+        <div class="pile"><div id="discardLabel" class="pile-label">SCARTI</div><div id="topCard" class="card blue"><span>?</span></div><div id="currentColor" class="mini"></div></div>
       </div>
       <div>
         <div id="turn" class="turn"></div>
+        <div id="gameErr" class="error" style="display:none"></div>
         <div id="hand" class="hand"></div>
-        <div class="actions"><button id="drawBtn" class="primary">Draw card</button><button id="unoBtn" class="danger">UNO!</button><button id="leaveBtn" class="secondary">Leave</button></div>
+        <div class="actions"><button id="drawBtn" class="primary">Pesca carta</button><button id="unoBtn" class="danger">UNO!</button><button id="leaveBtn" class="secondary">Esci</button></div>
       </div>
     </div>
   </section>
 </div>
-<div id="overlay" class="overlay"><div class="modal"><div class="win">Choose a color</div><div class="colors"><button class="red" data-color="red">Red</button><button class="yellow" data-color="yellow">Yellow</button><button class="green" data-color="green">Green</button><button class="blue" data-color="blue">Blue</button></div><button id="closeModal" class="secondary" style="width:100%;margin-top:12px">Cancel</button></div></div>
+<div id="overlay" class="overlay"><div class="modal"><div id="colorChoiceTitle" class="win">Scegli un colore</div><div class="colors"><button class="red" data-color="red">Rosso</button><button class="yellow" data-color="yellow">Giallo</button><button class="green" data-color="green">Verde</button><button class="blue" data-color="blue">Blu</button></div><button id="closeModal" class="secondary" style="width:100%;margin-top:12px">Annulla</button></div></div>
 <script>
-const API="https://lakkufojduscksomenbp.supabase.co/functions/v1/uno-api-v2";
-let token=localStorage.getItem("uno_session"), room="", poll=null, current=null, pendingWild=null, unoCalled=false;
+const configuredApi=new URLSearchParams(location.search).get("api");
+const API=configuredApi||"https://lakkufojduscksomenbp.supabase.co/functions/v1/uno-api-v2";
+let token=localStorage.getItem("uno_session"), room="", poll=null, current=null, pendingWild=null, unoCalled=false, language=localStorage.getItem("uno_language")||"it";
 const $=id=>document.getElementById(id);
-function err(s){$("err").textContent=s;$("err").style.display=s?"block":"none"}
+function err(s){["err","gameErr"].forEach(id=>{const el=$(id);if(el){el.textContent=s;el.style.display=s?"block":"none"}})}
+const uiText={
+ it:{status:"Stanza privata",heroTitle:"Giochiamo insieme.",heroSubtitle:"Una partita privata per la famiglia · da 2 a 4 giocatori",createTab:"Crea partita",joinTab:"Entra in partita",name:"Il tuo nome",players:"Giocatori",create:"Crea stanza privata",roomCode:"Codice stanza",join:"Entra nella stanza",hint:"Le tue carte restano private. Condividi il codice della stanza con la mamma e iniziate a giocare.",room:"STANZA",copy:"Copia invito",waiting:"In attesa dell'altro giocatore…",start:"Inizia partita",drawPile:"PESCA",discard:"SCARTI",draw:"Pesca carta",leave:"Esci",chooseColor:"Scegli un colore",cancel:"Annulla",languageButton:"English",cards:"carte",offline:"disconnesso",waitingPlayers:"In attesa di giocatori…",yourTurn:"È il tuo turno",turnOf:"Turno di",gameOver:"Partita terminata",winner:"ha vinto!",color:"Colore",colors:{red:"Rosso",yellow:"Giallo",green:"Verde",blue:"Blu"}},
+ en:{status:"Private room",heroTitle:"Let's play together.",heroSubtitle:"A private family game · 2 to 4 players",createTab:"Create game",joinTab:"Join game",name:"Your name",players:"Players",create:"Create private room",roomCode:"Room code",join:"Join room",hint:"Your cards stay private. Share the room code with your family and start playing.",room:"ROOM",copy:"Copy invite",waiting:"Waiting for another player…",start:"Start game",drawPile:"DRAW",discard:"DISCARD",draw:"Draw card",leave:"Leave",chooseColor:"Choose a color",cancel:"Cancel",languageButton:"Italiano",cards:"cards",offline:"offline",waitingPlayers:"Waiting for players…",yourTurn:"Your turn",turnOf:"Turn of",gameOver:"Game over",winner:"wins!",color:"Color",colors:{red:"Red",yellow:"Yellow",green:"Green",blue:"Blue"}}
+};
+const t=key=>uiText[language][key];
+function applyLanguage(){
+ const text={statusBadge:"status",heroTitle:"heroTitle",heroSubtitle:"heroSubtitle",newTab:"createTab",joinTab:"joinTab",createNameLabel:"name",playersLabel:"players",createBtn:"create",joinNameLabel:"name",roomCodeLabel:"roomCode",joinBtn:"join",lobbyHint:"hint",roomLabel:"room",copyBtn:"copy",waitingHint:"waiting",startBtn:"start",drawLabel:"drawPile",discardLabel:"discard",drawBtn:"draw",leaveBtn:"leave",colorChoiceTitle:"chooseColor",closeModal:"cancel"};
+ Object.entries(text).forEach(([id,key])=>{if($(id))$(id).textContent=t(key)});
+ $("createName").placeholder="Marco"; $("joinName").placeholder=language==="it"?"Mamma":"Mom";
+ [2,3,4].forEach(count=>{const option=$("maxPlayers").querySelector(`option[value="${count}"]`);if(option)option.textContent=language==="it"?`${count} giocatori`:`${count} players`});
+ document.querySelector('[data-color="red"]').textContent=t("colors").red; document.querySelector('[data-color="yellow"]').textContent=t("colors").yellow; document.querySelector('[data-color="green"]').textContent=t("colors").green; document.querySelector('[data-color="blue"]').textContent=t("colors").blue;
+ $("languageBtn").textContent=t("languageButton");
+ if(current)render(current);
+}
+$("languageBtn").onclick=()=>{language=language==="it"?"en":"it";localStorage.setItem("uno_language",language);applyLanguage()};
+function friendlyError(e){
+  const message=e?.message||String(e);
+  const errors={
+    "Invalid session":["Sessione non valida","Invalid session"],"Game not found":["Partita non trovata","Game not found"],"Game already started":["La partita è già iniziata","Game already started"],"Game is full":["La stanza è piena","The room is full"],"Name required":["Inserisci il tuo nome","Enter your name"],"Need at least 2 players":["Servono almeno 2 giocatori","At least 2 players are required"],"Only the room creator can start":["Solo il creatore della stanza può iniziare","Only the room creator can start"],"Game is not active":["La partita non è attiva","The game is not active"],"Not your turn":["Non è il tuo turno","It is not your turn"],"That card cannot be played":["Non puoi giocare questa carta","That card cannot be played"],"Choose a color":["Scegli un colore","Choose a color"],"Wild +4 is not allowed while you have the current color":["Non puoi usare il +4 se hai una carta del colore attivo","You cannot use +4 while you have the current color"],"No cards left to draw":["Non ci sono più carte da pescare","There are no cards left to draw"]
+  };
+  return message.includes("Failed to fetch")||message.includes("NetworkError")
+    ? (language==="it"?"Il server di gioco non è raggiungibile. Controlla la connessione oppure configura un endpoint Supabase attivo.":"The game server cannot be reached. Check your connection or configure an active Supabase endpoint.")
+    : errors[message]?.[language==="it"?0:1]||message;
+}
 function call(op,extra={}){return fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({op,session_token:token,...extra})}).then(r=>r.json()).then(x=>{if(x.error)throw Error(x.error);return x})}
 function showGame(){ $("lobby").style.display="none"; $("game").style.display="block"; }
 function cardText(c){return ({skip:"↪",reverse:"↔",draw2:"+2",wild:"★",wild4:"+4"})[c.value]??c.value}
 function cardEl(c,click){const d=document.createElement("button");d.className="card "+(c.color==="wild"?"wild":c.color);d.innerHTML="<span>"+cardText(c)+"</span>";if(click)d.onclick=click;return d}
 function render(s){
  current=s; showGame(); room=s.game.room_code; $("roomCodeDisplay").textContent=room;
- $("players").innerHTML=s.players.map(p=>`<div class="player ${p.id===s.players.find(x=>x.seat===s.players[0].seat)?.id&&p.id===s.players[0].id?"":""}">${p.name} · ${p.card_count??"? cards"} ${p.connected?"":"· offline"}</div>`).join("");
+ $("players").innerHTML=s.players.map(p=>`<div class="player ${p.id===s.players.find(x=>x.seat===s.players[0].seat)?.id&&p.id===s.players[0].id?"":""}">${p.name} · ${p.card_count??"? "+t("cards")} ${p.connected?"":"· "+t("offline")}</div>`).join("");
  const me=s.players.find(p=>p.seat===s.players.find(x=>x.id===s.players[0].id)?.seat);
  const mySeat=s.players.find(p=>p.card_count===s.hand.length)?.seat;
- $("opponents").innerHTML=s.players.filter(p=>p.id!==s.you.id).map(p=>`<div class="opponent"><b>${p.name}</b><div class="count">${p.card_count??"?"} cards ${p.connected?"":"· offline"}</div></div>`).join("");
- const tc=s.game.top_card; $("topCard").className="card "+(tc.color==="wild"?"wild":tc.color); $("topCard").querySelector("span").textContent=cardText(tc);
- $("turn").textContent=s.game.status==="finished" ? "🏆 Game over" : (s.game.current_seat===s.you.seat ? "Your turn" : `Waiting for ${s.players.find(p=>p.seat===s.game.current_seat)?.name||"player"}…`);
+ $("opponents").innerHTML=s.players.filter(p=>p.id!==s.you.id).map(p=>`<div class="opponent"><b>${p.name}</b><div class="count">${p.card_count??"?"} ${t("cards")} ${p.connected?"":"· "+t("offline")}</div></div>`).join("");
+ const tc=s.game.top_card; $("topCard").className="card "+(tc?(tc.color==="wild"?"wild":tc.color):"back"); $("topCard").querySelector("span").textContent=tc?cardText(tc):"?";
+ $("currentColor").textContent=s.game.current_color?`${t("color")}: ${t("colors")[s.game.current_color]||s.game.current_color}`:"";
+ $("turn").textContent=s.game.status==="finished" ? "🏆 "+t("gameOver") : s.game.status==="waiting" ? t("waitingPlayers") : (s.game.current_seat===s.you.seat ? t("yourTurn") : `${t("turnOf")} ${s.players.find(p=>p.seat===s.game.current_seat)?.name||(language==="it"?"un giocatore":"a player")}…`);
  $("hand").innerHTML=""; s.hand.forEach(c=>$("hand").appendChild(cardEl(c,()=>playCard(c))));
  $("drawBtn").disabled=s.game.current_seat!==s.you.seat || s.game.status!=="playing";
  $("waiting").style.display=s.game.status==="waiting"?"block":"none"; $("startBtn").style.display=s.players.length>0&&s.players[0].card_count===0?"block":"none";
- if(s.game.status==="finished") $("turn").textContent="🏆 "+(s.players.find(p=>p.id===s.game.winner_player_id)?.name||"Someone")+" wins!";
+ if(s.game.status==="finished") $("turn").textContent="🏆 "+(s.players.find(p=>p.id===s.game.winner_player_id)?.name||(language==="it"?"Un giocatore":"A player"))+" "+t("winner");
 }
 async function refresh(){try{render(await call("state"))}catch(e){console.warn(e.message)}}
-async function playCard(c){if(!current)return; if(current.game.current_seat!==current.you.seat)return; if(c.color==="wild"){pendingWild=c;$("overlay").style.display="flex";return} try{await call("play",{card_id:c.id});unoCalled=false;await refresh()}catch(e){err(e.message)}}
+async function playCard(c){if(!current)return; if(current.game.current_seat!==current.you.seat)return; if(c.color==="wild"){pendingWild=c;$("overlay").style.display="flex";return} try{await call("play",{card_id:c.id});unoCalled=false;await refresh()}catch(e){err(friendlyError(e))}}
 $("newTab").onclick=()=>{$("createBox").style.display="block";$("joinBox").style.display="none"}
 $("joinTab").onclick=()=>{$("createBox").style.display="none";$("joinBox").style.display="block"}
-$("createBtn").onclick=async()=>{try{err("");const r=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({op:"create",name:$("createName").value,max_players:+$("maxPlayers").value})}).then(r=>r.json());if(r.error)throw Error(r.error);token=r.session_token;localStorage.setItem("uno_session",token);room=r.room_code;await refresh();startPolling()}catch(e){err(e.message)}}
-$("joinBtn").onclick=async()=>{try{err("");const r=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({op:"join",name:$("joinName").value,room_code:$("roomCode").value})}).then(r=>r.json());if(r.error)throw Error(r.error);token=r.session_token;localStorage.setItem("uno_session",token);await refresh();startPolling()}catch(e){err(e.message)}}
-$("startBtn").onclick=async()=>{try{await call("start");await refresh()}catch(e){err(e.message)}}
-$("drawBtn").onclick=async()=>{try{await call("draw");await refresh()}catch(e){err(e.message)}}
-$("unoBtn").onclick=async()=>{try{await call("uno");unoCalled=true;$("unoBtn").textContent="UNO! ✓";await refresh();setTimeout(()=>$("unoBtn").textContent="UNO!",1200)}catch(e){err(e.message)}}
-$("copyBtn").onclick=async()=>{await navigator.clipboard.writeText(location.href+"?room="+room);$("copyBtn").textContent="Copied ✓";setTimeout(()=>$("copyBtn").textContent="Copy invite",1200)}
+$("createBtn").onclick=async()=>{try{err("");const r=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({op:"create",name:$("createName").value,max_players:+$("maxPlayers").value})}).then(r=>r.json());if(r.error)throw Error(r.error);token=r.session_token;localStorage.setItem("uno_session",token);room=r.room_code;await refresh();startPolling()}catch(e){err(friendlyError(e))}}
+$("joinBtn").onclick=async()=>{try{err("");const r=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({op:"join",name:$("joinName").value,room_code:$("roomCode").value})}).then(r=>r.json());if(r.error)throw Error(r.error);token=r.session_token;localStorage.setItem("uno_session",token);await refresh();startPolling()}catch(e){err(friendlyError(e))}}
+$("startBtn").onclick=async()=>{try{await call("start");await refresh()}catch(e){err(friendlyError(e))}}
+$("drawBtn").onclick=async()=>{try{await call("draw");await refresh()}catch(e){err(friendlyError(e))}}
+$("unoBtn").onclick=async()=>{try{await call("uno");unoCalled=true;$("unoBtn").textContent="UNO! ✓";await refresh();setTimeout(()=>$("unoBtn").textContent="UNO!",1200)}catch(e){err(friendlyError(e))}}
+$("copyBtn").onclick=async()=>{await navigator.clipboard.writeText(location.href+"?room="+room);$("copyBtn").textContent=language==="it"?"Copiato ✓":"Copied ✓";setTimeout(()=>$("copyBtn").textContent=t("copy"),1200)}
 $("leaveBtn").onclick=()=>{localStorage.removeItem("uno_session");location.reload()}
-document.querySelectorAll("[data-color]").forEach(b=>b.onclick=async()=>{try{$("overlay").style.display="none";await call("play",{card_id:pendingWild.id,chosen_color:b.dataset.color});pendingWild=null;unoCalled=false;await refresh()}catch(e){err(e.message)}});
+document.querySelectorAll("[data-color]").forEach(b=>b.onclick=async()=>{try{$("overlay").style.display="none";await call("play",{card_id:pendingWild.id,chosen_color:b.dataset.color});pendingWild=null;unoCalled=false;err("");await refresh()}catch(e){err(friendlyError(e));$("overlay").style.display="flex"}});
 $("closeModal").onclick=()=>{$("overlay").style.display="none";pendingWild=null}
 function startPolling(){if(poll)clearInterval(poll);poll=setInterval(refresh,1200)}
+applyLanguage();
 if(token){refresh();startPolling()}
 const params=new URLSearchParams(location.search); if(params.get("room")){$("roomCode").value=params.get("room").toUpperCase();$("newTab").click();$("joinTab").click()}
 </script>
